@@ -3,14 +3,11 @@
 // ---- Curated cities: drop a new file in data/curated/ and add it here ----
 const CURATED_CITIES = ["birmingham"];
 
-// ---- Config ----
-const LIST_LIMIT = 20;       // show at most this many nearest car parks
-
 // ---- State ----
 let userPos = null;          // { lat, lng }
 let carParks = [];           // merged list of car-park records within current radius
 let sortMode = "nearest";    // "nearest" | "cheapest"
-let currentRadiusM = 2000;   // search distance in metres
+let currentRadiusM = 1000;   // search distance in metres (the "Within" control)
 let map, userMarker;
 let parkLayer;
 
@@ -179,10 +176,9 @@ function byCheapest(a, b) {
   return pa - pb || a.distance - b.distance;
 }
 
-// The nearest LIST_LIMIT car parks, then ordered by the chosen sort mode.
+// All car parks within the chosen distance, ordered by the chosen sort mode.
 function visibleParks() {
-  const nearest = carParks.slice().sort(byDistance).slice(0, LIST_LIMIT);
-  return sortMode === "cheapest" ? nearest.sort(byCheapest) : nearest;
+  return carParks.slice().sort(sortMode === "cheapest" ? byCheapest : byDistance);
 }
 
 function radiusLabel() {
@@ -273,10 +269,9 @@ async function loadParks() {
   await tryLiveAvailability();
 
   if (carParks.length > 0) {
-    const shown = Math.min(carParks.length, LIST_LIMIT);
     const verifiedNote = cityData ? ` · verified prices for ${cityData.city}` : "";
-    const moreNote = carParks.length > LIST_LIMIT ? ` of ${carParks.length}` : "";
-    setStatus(`Nearest ${shown}${moreNote} within ${radiusLabel()}${verifiedNote}`);
+    const plural = carParks.length === 1 ? "car park" : "car parks";
+    setStatus(`${carParks.length} ${plural} within ${radiusLabel()}${verifiedNote}`);
   } else {
     setStatus(`No car parks found within ${radiusLabel()}. Try a wider distance.`, true);
   }
