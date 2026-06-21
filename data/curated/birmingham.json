@@ -1,0 +1,24 @@
+{
+  "city": "Birmingham",
+  "country": "United Kingdom",
+  "lastChecked": "2026-06-21",
+  "bounds": { "minLat": 52.40, "maxLat": 52.55, "minLng": -2.05, "maxLng": -1.78 },
+  "carParks": [
+    { "id": "bham-bullring", "name": "Bullring Car Park (NCP)", "lat": 52.4775, "lng": -1.8920, "pricePerHour": 3.30, "dayRate": 26.00, "tariffText": "£3.30/hr · £26 max stay" },
+    { "id": "bham-grand-central", "name": "Grand Central (Q-Park)", "lat": 52.4779, "lng": -1.8995, "pricePerHour": 4.00, "dayRate": 32.00, "tariffText": "£4.00/hr · £32 for 24h" },
+    { "id": "bham-snowhill", "name": "Snow Hill Car Park (NCP)", "lat": 52.4845, "lng": -1.8975, "pricePerHour": 3.00, "dayRate": 22.00, "tariffText": "£3.00/hr · £22 max stay" },
+    { "id": "bham-arena", "name": "Arena Birmingham (NCP)", "lat": 52.4810, "lng": -1.9135, "pricePerHour": 2.80, "dayRate": 18.00, "tariffText": "£2.80/hr · £18 evening event flat" },
+    { "id": "bham-mailbox", "name": "The Mailbox Car Park", "lat": 52.4750, "lng": -1.9050, "pricePerHour": 3.50, "dayRate": 28.00, "tariffText": "£3.50/hr · £28 max" },
+    { "id": "bham-brindley", "name": "Brindleyplace (NCP)", "lat": 52.4790, "lng": -1.9110, "pricePerHour": 3.20, "dayRate": 24.00, "tariffText": "£3.20/hr · £24 max" },
+    { "id": "bham-paradise", "name": "Paradise Birmingham (Q-Park)", "lat": 52.4795, "lng": -1.9055, "pricePerHour": 3.80, "dayRate": 30.00, "tariffText": "£3.80/hr · £30 for 24h" },
+    { "id": "bham-newhall", "name": "Newhall Street (NCP)", "lat": 52.4830, "lng": -1.9035, "pricePerHour": 2.90, "dayRate": 20.00, "tariffText": "£2.90/hr · £20 max" },
+    { "id": "bham-moor-street", "name": "Moor Street Queensway", "lat": 52.4790, "lng": -1.8915, "pricePerHour": 2.60, "dayRate": 16.00, "tariffText": "£2.60/hr · £16 max" },
+    { "id": "bham-jewellery", "name": "Jewellery Quarter (St Paul's)", "lat": 52.4880, "lng": -1.9070, "pricePerHour": 2.20, "dayRate": 12.00, "tariffText": "£2.20/hr · £12 all day" },
+    { "id": "bham-pershore", "name": "Pershore Street Multi-Storey", "lat": 52.4740, "lng": -1.8955, "pricePerHour": 2.40, "dayRate": 14.00, "tariffText": "£2.40/hr · £14 max" },
+    { "id": "bham-livery", "name": "Livery Street Car Park", "lat": 52.4855, "lng": -1.9010, "pricePerHour": 2.70, "dayRate": 17.00, "tariffText": "£2.70/hr · £17 max" },
+    { "id": "bham-town-hall", "name": "Town Hall (Paradise Circus)", "lat": 52.4795, "lng": -1.9035, "pricePerHour": 3.60, "dayRate": 29.00, "tariffText": "£3.60/hr · £29 max" },
+    { "id": "bham-millennium", "name": "Millennium Point Car Park", "lat": 52.4835, "lng": -1.8830, "pricePerHour": 1.80, "dayRate": 9.50, "tariffText": "£1.80/hr · £9.50 all day" },
+    { "id": "bham-dale-end", "name": "Dale End Car Park (NCP)", "lat": 52.4815, "lng": -1.8930, "pricePerHour": 3.10, "dayRate": 23.00, "tariffText": "£3.10/hr · £23 max" },
+    { "id": "bham-holloway", "name": "Holloway Circus (Q-Park)", "lat": 52.4730, "lng": -1.8990, "pricePerHour": 3.40, "dayRate": 25.00, "tariffText": "£3.40/hr · £25 for 24h" }
+  ]
+}

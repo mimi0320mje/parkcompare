@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#1f6feb" />
+  <title>ParkCompare — find cheaper parking near you</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <!-- Leaflet (free open map) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>🅿️ ParkCompare</h1>
+    <p class="tagline">Cheaper parking, wherever you are</p>
+  </header>
+
+  <div id="map" aria-label="Map of nearby car parks"></div>
+
+  <div class="controls">
+    <div id="status" class="status">Finding your location…</div>
+    <div class="sort" role="group" aria-label="Sort car parks">
+      <span class="sort-label">Sort:</span>
+      <button id="sort-nearest" class="sort-btn active" aria-pressed="true">Nearest</button>
+      <button id="sort-cheapest" class="sort-btn" aria-pressed="false">Cheapest</button>
+    </div>
+  </div>
+
+  <main>
+    <ul id="list" class="card-list"></ul>
+  </main>
+
+  <footer class="app-footer">
+    <span id="data-note">Locations from OpenStreetMap. Verified prices shown where available.</span>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="app.js"></script>
+</body>
+</html>
