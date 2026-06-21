@@ -3,10 +3,14 @@
 // ---- Curated cities: drop a new file in data/curated/ and add it here ----
 const CURATED_CITIES = ["birmingham"];
 
+// ---- Config ----
+const LIST_LIMIT = 20;       // show at most this many nearest car parks
+
 // ---- State ----
 let userPos = null;          // { lat, lng }
-let carParks = [];           // merged list of car-park records
+let carParks = [];           // merged list of car-park records within current radius
 let sortMode = "nearest";    // "nearest" | "cheapest"
+let currentRadiusM = 2000;   // search distance in metres
 let map, userMarker;
 let parkLayer;
 
@@ -15,6 +19,7 @@ const els = {
   list: document.getElementById("list"),
   sortNearest: document.getElementById("sort-nearest"),
   sortCheapest: document.getElementById("sort-cheapest"),
+  radiusBtns: document.querySelectorAll(".radius-btn"),
 };
 
 // ---- Helpers ----
@@ -61,10 +66,10 @@ function initMap(center) {
   userMarker = L.marker([center.lat, center.lng], { icon: youIcon, title: "You are here" }).addTo(map);
 }
 
-function refreshMapMarkers() {
+function refreshMapMarkers(parks) {
   if (!parkLayer) return;
   parkLayer.clearLayers();
-  carParks.forEach((p) => {
+  parks.forEach((p) => {
     const marker = L.marker([p.lat, p.lng]);
     const price = p.tariffText || (p.fee === "no" ? "Free" : "Price not listed");
     marker.bindPopup(
@@ -163,19 +168,25 @@ function mergeCurated(osmParks, cityData) {
 }
 
 // ---- Sorting & rendering ----
-function sortParks() {
-  if (sortMode === "cheapest") {
-    carParks.sort((a, b) => {
-      const pa = a.pricePerHour;
-      const pb = b.pricePerHour;
-      if (pa == null && pb == null) return a.distance - b.distance;
-      if (pa == null) return 1;   // unknown price sorts last
-      if (pb == null) return -1;
-      return pa - pb || a.distance - b.distance;
-    });
-  } else {
-    carParks.sort((a, b) => a.distance - b.distance);
-  }
+function byDistance(a, b) { return a.distance - b.distance; }
+
+function byCheapest(a, b) {
+  const pa = a.pricePerHour;
+  const pb = b.pricePerHour;
+  if (pa == null && pb == null) return a.distance - b.distance;
+  if (pa == null) return 1;   // unknown price sorts last
+  if (pb == null) return -1;
+  return pa - pb || a.distance - b.distance;
+}
+
+// The nearest LIST_LIMIT car parks, then ordered by the chosen sort mode.
+function visibleParks() {
+  const nearest = carParks.slice().sort(byDistance).slice(0, LIST_LIMIT);
+  return sortMode === "cheapest" ? nearest.sort(byCheapest) : nearest;
+}
+
+function radiusLabel() {
+  return `${currentRadiusM / 1000} km`;
 }
 
 function navUrl(p) {
@@ -191,18 +202,18 @@ function priceHtml(p) {
 }
 
 function render() {
-  sortParks();
-  refreshMapMarkers();
+  const parks = visibleParks();
+  refreshMapMarkers(parks);
   els.list.innerHTML = "";
 
-  if (carParks.length === 0) {
+  if (parks.length === 0) {
     els.list.innerHTML =
-      '<div class="empty">No car parks found near you.<br><button onclick="location.reload()">Try again</button></div>';
+      `<div class="empty">No car parks found within ${radiusLabel()}.<br>Try a wider distance above.</div>`;
     return;
   }
 
   const frag = document.createDocumentFragment();
-  carParks.forEach((p) => {
+  parks.forEach((p) => {
     const li = document.createElement("li");
     li.className = "card";
     li.innerHTML = `
@@ -236,29 +247,38 @@ async function tryLiveAvailability() {
 async function start(pos) {
   userPos = pos;
   initMap(pos);
-  setStatus("Looking for car parks near you…");
+  await loadParks();
+}
+
+// Fetch + merge + render car parks for the current location and radius.
+// Re-run whenever the user changes the distance.
+async function loadParks() {
+  setStatus(`Looking for car parks within ${radiusLabel()}…`);
 
   let osm = [];
   try {
-    osm = await fetchOsmCarParks(pos);
+    osm = await fetchOsmCarParks(userPos, currentRadiusM);
   } catch (e) {
     console.warn(e);
     setStatus("Couldn't load nearby parking right now. Showing verified prices if available.", true);
   }
 
-  const cityData = await loadCuratedForPos(pos);
+  const cityData = await loadCuratedForPos(userPos);
   carParks = mergeCurated(osm, cityData);
 
-  // distances
-  carParks.forEach((p) => (p.distance = distanceMeters(pos, p)));
+  // distances, then keep only what's inside the chosen radius
+  carParks.forEach((p) => (p.distance = distanceMeters(userPos, p)));
+  carParks = carParks.filter((p) => p.distance <= currentRadiusM);
 
   await tryLiveAvailability();
 
   if (carParks.length > 0) {
+    const shown = Math.min(carParks.length, LIST_LIMIT);
     const verifiedNote = cityData ? ` · verified prices for ${cityData.city}` : "";
-    setStatus(`${carParks.length} car parks nearby${verifiedNote}`);
+    const moreNote = carParks.length > LIST_LIMIT ? ` of ${carParks.length}` : "";
+    setStatus(`Nearest ${shown}${moreNote} within ${radiusLabel()}${verifiedNote}`);
   } else {
-    setStatus("No car parks found within 2 km.", true);
+    setStatus(`No car parks found within ${radiusLabel()}. Try a wider distance.`, true);
   }
   render();
 }
@@ -298,6 +318,19 @@ els.sortCheapest.addEventListener("click", () => {
   els.sortNearest.classList.remove("active");
   els.sortNearest.setAttribute("aria-pressed", "false");
   render();
+});
+
+// Distance (radius) toggle — re-fetches car parks for the new distance
+els.radiusBtns.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    currentRadiusM = Number(btn.dataset.m);
+    els.radiusBtns.forEach((b) => {
+      const active = b === btn;
+      b.classList.toggle("active", active);
+      b.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+    if (userPos) loadParks(); // re-fetch for the new distance once we know where we are
+  });
 });
 
 // Service worker (auto-updating, network-first)

@@ -22,10 +22,21 @@
 
   <div class="controls">
     <div id="status" class="status">Finding your location…</div>
-    <div class="sort" role="group" aria-label="Sort car parks">
-      <span class="sort-label">Sort:</span>
-      <button id="sort-nearest" class="sort-btn active" aria-pressed="true">Nearest</button>
-      <button id="sort-cheapest" class="sort-btn" aria-pressed="false">Cheapest</button>
+    <div class="control-row">
+      <div class="sort" role="group" aria-label="Sort car parks">
+        <span class="ctrl-label">Sort:</span>
+        <button id="sort-nearest" class="sort-btn active" aria-pressed="true">Nearest</button>
+        <button id="sort-cheapest" class="sort-btn" aria-pressed="false">Cheapest</button>
+      </div>
+    </div>
+    <div class="control-row">
+      <div class="radius" role="group" aria-label="Search distance">
+        <span class="ctrl-label">Within:</span>
+        <button class="sort-btn radius-btn" data-m="500">0.5 km</button>
+        <button class="sort-btn radius-btn" data-m="1000">1 km</button>
+        <button class="sort-btn radius-btn active" data-m="2000" aria-pressed="true">2 km</button>
+        <button class="sort-btn radius-btn" data-m="5000">5 km</button>
+      </div>
     </div>
   </div>
 

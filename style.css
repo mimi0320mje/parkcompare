@@ -42,17 +42,16 @@ html, body {
 
 .controls {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 10px 16px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 16px 4px;
 }
-.status { font-size: 0.85rem; color: var(--muted); flex: 1 1 auto; }
+.status { font-size: 0.85rem; color: var(--muted); }
 .status.error { color: #c23b3b; }
 
-.sort { display: flex; align-items: center; gap: 6px; }
-.sort-label { font-size: 0.8rem; color: var(--muted); }
+.control-row { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.sort, .radius { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.ctrl-label { font-size: 0.8rem; color: var(--muted); min-width: 48px; }
 .sort-btn {
   border: 1px solid #d4dbe3;
   background: #fff;
@@ -64,6 +63,7 @@ html, body {
   transition: all 0.15s ease;
 }
 .sort-btn.active { background: var(--brand); border-color: var(--brand); color: #fff; }
+.radius-btn { padding: 6px 10px; }
 
 main { padding: 0 12px 24px; }
 
