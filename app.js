@@ -3,9 +3,15 @@
 // ---- Curated cities: drop a new file in data/curated/ and add it here ----
 const CURATED_CITIES = ["birmingham"];
 
+// ---- Config ----
+const MAX_RADIUS_M = 2000;   // widest "Within" option — fetched once, then filtered locally
+
 // ---- State ----
 let userPos = null;          // { lat, lng }
-let carParks = [];           // merged list of car-park records within current radius
+let allParks = [];           // everything fetched within MAX_RADIUS_M (the cache)
+let carParks = [];           // subset within the current radius (what we display)
+let curatedCity = null;      // curated city data for the user's location, if any
+let parksLoaded = false;     // true once the one-time fetch completes
 let sortMode = "nearest";    // "nearest" | "cheapest"
 let currentRadiusM = 1000;   // search distance in metres (the "Within" control)
 let map, userMarker;
@@ -243,33 +249,38 @@ async function tryLiveAvailability() {
 async function start(pos) {
   userPos = pos;
   initMap(pos);
-  await loadParks();
+  await fetchAllParks();
+  applyRadius();
 }
 
-// Fetch + merge + render car parks for the current location and radius.
-// Re-run whenever the user changes the distance.
-async function loadParks() {
-  setStatus(`Looking for car parks within ${radiusLabel()}…`);
+// One-time fetch at the widest distance. Everything closer is just a
+// local filter of this result, so changing the distance is instant.
+async function fetchAllParks() {
+  setStatus("Finding car parks near you…");
 
   let osm = [];
   try {
-    osm = await fetchOsmCarParks(userPos, currentRadiusM);
+    osm = await fetchOsmCarParks(userPos, MAX_RADIUS_M);
   } catch (e) {
     console.warn(e);
     setStatus("Couldn't load nearby parking right now. Showing verified prices if available.", true);
   }
 
-  const cityData = await loadCuratedForPos(userPos);
-  carParks = mergeCurated(osm, cityData);
-
-  // distances, then keep only what's inside the chosen radius
-  carParks.forEach((p) => (p.distance = distanceMeters(userPos, p)));
-  carParks = carParks.filter((p) => p.distance <= currentRadiusM);
+  curatedCity = await loadCuratedForPos(userPos);
+  allParks = mergeCurated(osm, curatedCity);
+  allParks.forEach((p) => (p.distance = distanceMeters(userPos, p)));
+  allParks = allParks.filter((p) => p.distance <= MAX_RADIUS_M);
 
   await tryLiveAvailability();
+  parksLoaded = true;
+}
+
+// Filter the cached parks to the chosen distance and render. No network.
+function applyRadius() {
+  carParks = allParks.filter((p) => p.distance <= currentRadiusM);
 
   if (carParks.length > 0) {
-    const verifiedNote = cityData ? ` · verified prices for ${cityData.city}` : "";
+    const verifiedNote = curatedCity ? ` · verified prices for ${curatedCity.city}` : "";
     const plural = carParks.length === 1 ? "car park" : "car parks";
     setStatus(`${carParks.length} ${plural} within ${radiusLabel()}${verifiedNote}`);
   } else {
@@ -324,7 +335,7 @@ els.radiusBtns.forEach((btn) => {
       b.classList.toggle("active", active);
       b.setAttribute("aria-pressed", active ? "true" : "false");
     });
-    if (userPos) loadParks(); // re-fetch for the new distance once we know where we are
+    if (parksLoaded) applyRadius(); // instant local filter, no network call
   });
 });
 
